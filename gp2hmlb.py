@@ -19,7 +19,7 @@ second parameter is type of uplink. you can choose between 2M, 70CM
     Windows:    rigctld -m 381 -r COM5 -s 19200 -t 4572
 2t step:    starting gp2hmlb.py pythonscript
     Linux:      python3 gp2hmlb.py FM 70CM
-    Windows:    python3 gp2hmlb.py FM 70CM (
+    Windows:    python3 gp2hmlb.py FM 70CM
 3t step:    start gepredict with a duplex trx on port 4532 and MAIN/SUB
 '''
 
@@ -118,7 +118,9 @@ def loopSSBandFMandCW(sock_hamlib, up, dw):
 
 def loopSIMPLEX(sock_hamlib, up, dw):
 
+    # only update of frequencies if PTT off
     if sendCommandToHamlib(sock_hamlib, b't\n')[0] == '0':
+
         # set uplink frequency
         sendCommandToHamlib(sock_hamlib, b'V VFOB\n')
         b = bytearray()
