@@ -26,7 +26,7 @@ gp2hmlb.py has to be called with 2 parameter
 
 Usage: python3 gp2hmlb.py [type_of_satellite] [band_of_uplink]
 
-1. Parameter is type of satellite. You can choose between FM, SSB, SIMPLEX, CW
+1. Parameter is type of satellite. You can choose between FM, SSB, USB, SIMPLEX, CW
 2. Parameter is type of uplink. You can choose between 2M, 70CM, 23CM
 
 
@@ -41,7 +41,9 @@ to wait until gpredict have catch the new downlink frequency and the new matchin
 send to ic9700. You have to play around with this :)
 
 At start the script always set:
-* the uplink in LSB and the downlink in USB. Most common satellites should work with this (?)
+* with parameter SSB the uplink in LSB and the downlink in USB. Most common satellites should work with this
+* with parameter USB it will set uplink to USB and downlink to LSB
+* with parameter FM subtone 670 will be activated on uplink
 * the script try to turn of repeater shifts (DUP+, DUP-)
 * it sets SQL to open on uplink and downlink
 * it will set AF level to 0 on TX and to 0.09 on RX

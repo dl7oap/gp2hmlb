@@ -11,7 +11,7 @@ and it is sending frequencies and startsequences for ic9700 to port 4572 for ham
 
 Usage: python3 gp2hmlb.py [type_of_satellite] [band_of_uplink]
 gp2hmlb.py hast to be called with 2 parameter
-first parameter is type of satellite. you can choose between FM, SSB, SIMPLEX, CW
+first parameter is type of satellite. you can choose between FM, SSB, USB, SIMPLEX, CW
 second parameter is type of uplink. You can choose between 2M, 70CM, 23CM
 
 1t step:    starting hamlib daemon on port 4572
@@ -22,8 +22,6 @@ second parameter is type of uplink. You can choose between 2M, 70CM, 23CM
     Windows:    python3 gp2hmlb.py FM 70CM
 3t step:    start gpredict with a duplex trx on port 4532 and MAIN/SUB
 '''
-
-# TODO: are there satellites with USB uplink? when yes we have to split SSB parameter into LSB and USB
 
 
 import socket
@@ -47,7 +45,7 @@ def sendCommandToHamlib(sock_hamlib, command):
     return return_value
 
 
-def setStartSequenceGeneral(sock_hamlib):
+def setStartSequenceGeneral(sock_hamlib, type_of_satellite):
 
     # define uplink
     sendCommandToHamlib(sock_hamlib, 'V Main')
@@ -61,19 +59,24 @@ def setStartSequenceGeneral(sock_hamlib):
     sendCommandToHamlib(sock_hamlib, 'L AF 0.09')
     sendCommandToHamlib(sock_hamlib, 'R None')
 
+    if type_of_satellite == 'SIMPLEX':
+        sendCommandToHamlib(sock_hamlib, 'V Main')
 
-def setStartSequenceSSB(sock_hamlib):
+
+def setStartSequenceSSB(sock_hamlib, usb=False):
 
     # define uplink
     sendCommandToHamlib(sock_hamlib, 'V Main')
     sendCommandToHamlib(sock_hamlib, 'V VFOA')
-    sendCommandToHamlib(sock_hamlib, 'M LSB 2400')
+    if usb: sendCommandToHamlib(sock_hamlib, 'M USB 2400')
+    else: sendCommandToHamlib(sock_hamlib, 'M LSB 2400')
     sendCommandToHamlib(sock_hamlib, 'S 0 Main')
 
     # define downlink
     sendCommandToHamlib(sock_hamlib, 'V Sub')
     sendCommandToHamlib(sock_hamlib, 'V VFOA')
-    sendCommandToHamlib(sock_hamlib, 'M USB 2400')
+    if usb: sendCommandToHamlib(sock_hamlib, 'M LSB 2400')
+    else: sendCommandToHamlib(sock_hamlib, 'M USB 2400')
 
 
 def setStartSequenceCW(sock_hamlib):
@@ -222,6 +225,8 @@ def main():
 
         if type_of_satellite == 'SSB':
             setStartSequenceSSB(sock_hamlib)
+        elif type_of_satellite == 'USB':
+            setStartSequenceSSB(sock_hamlib, True)
         elif type_of_satellite == 'CW':
             setStartSequenceCW(sock_hamlib)
         elif type_of_satellite == 'FM':
@@ -229,15 +234,15 @@ def main():
         elif type_of_satellite == 'SIMPLEX':
             setStartSequenceSimplex(sock_hamlib)
         else:
-            print('ERROR: unkown satellite type "' + type_of_satellite + '". Only SSB, FM, SIMPLEX or CW possible.')
+            print('ERROR: unkown satellite type "' + type_of_satellite + '". Only SSB, USB, FM, SIMPLEX or CW possible.')
             return
-        setStartSequenceGeneral(sock_hamlib)
+        setStartSequenceGeneral(sock_hamlib, type_of_satellite)
 
     else:
         print('Usage: gp2hmlb.py [type_of_satellite] [band_of_uplink]')
         print('INFO: gp2hmlb.py hast to be called with 2 parameter')
-        print('first parameter is type of satellite. you can choose between FM, SSB, SIMPLEX, CW')
-        print('second parameter is type of Uplink. you can choose between 2M, 70CM')
+        print('first parameter is type of satellite. you can choose between FM, SSB, USB, SIMPLEX, CW')
+        print('second parameter is type of Uplink. you can choose between 2M, 70CM, 23CM')
         print('example: python3 gp2hmlb.py SSB 2M')
         return
 
@@ -263,7 +268,7 @@ def main():
                 print('gp2hmlb: fresh ^ ' + uplink + ' v ' + downlink)
                 # only if uplink or downlink changed >0 10Hz Column, then update
                 if (last_uplink[0:8] != uplink[0:8]) or (last_downlink[0:8] != downlink[0:8]):
-                    if type_of_satellite in ['SSB', 'CW', 'FM']:
+                    if type_of_satellite in ['SSB', 'USB', 'CW', 'FM']:
                         loopSSBandFMandCW(sock_hamlib, uplink, downlink)
                     if type_of_satellite == 'SIMPLEX':
                         loopSIMPLEX(sock_hamlib, uplink, downlink)
