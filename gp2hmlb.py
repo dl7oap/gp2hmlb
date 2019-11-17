@@ -20,13 +20,9 @@ second parameter is type of uplink. You can choose between 2M, 70CM, 23CM
 2t step:    starting gp2hmlb.py pythonscript
     Linux:      python3 gp2hmlb.py FM 70CM
     Windows:    python3 gp2hmlb.py FM 70CM
-3t step:    start gepredict with a duplex trx on port 4532 and MAIN/SUB
+3t step:    start gpredict with a duplex trx on port 4532 and MAIN/SUB
 '''
 
-
-# TODO: when FM, then enable AFC on downlink, when not FM disable AFC (will be U AFC 1/0)
-# TODO: when possible, disable in general start sequence DUP (hamlib command is missing)
-#       fe fe a2 00 0F 10 fd  set DUP off (R None)
 # TODO: are there satellites with USB uplink? when yes we have to split SSB parameter into LSB and USB
 
 
@@ -43,7 +39,11 @@ SLEEP_TIME = 0.02   # Sleeping time for hamlib tcp connect. hamlib can not handl
 def sendCommandToHamlib(sock_hamlib, command):
     sock_hamlib.send(command)
     time.sleep(SLEEP_TIME)
-    return sock_hamlib.recv(100).decode('utf-8')
+    return_value = sock_hamlib.recv(100).decode('utf-8')
+    if 'RPRT -' in return_value:
+        print('hamlib: ' + return_value.replace('\n', '')
+              + ' for command ' + command.decode('utf-8').replace('\n', ''))
+    return return_value
 
 
 def setStartSequenceGeneral(sock_hamlib):
@@ -52,12 +52,13 @@ def setStartSequenceGeneral(sock_hamlib):
     sendCommandToHamlib(sock_hamlib, b'V Main\n')
     sendCommandToHamlib(sock_hamlib, b'L SQL 0\n')
     sendCommandToHamlib(sock_hamlib, b'L AF 0\n')
-    #sendCommandToHamlib(sock_hamlib, b'R None\n')
+    sendCommandToHamlib(sock_hamlib, b'R None\n')
 
     # define downlink
     sendCommandToHamlib(sock_hamlib, b'V Sub\n')
     sendCommandToHamlib(sock_hamlib, b'L SQL 0\n')
     sendCommandToHamlib(sock_hamlib, b'L AF 0.15\n')
+    sendCommandToHamlib(sock_hamlib, b'R None\n')
 
 
 def setStartSequenceSSB(sock_hamlib):
@@ -256,7 +257,7 @@ def main():
         print('Connected by', addr)
         while 1:
             data = conn.recv(1000)
-            print('### gpredict says : ' + data.decode('utf-8').replace('\n', ''))
+            print('gpredict: ' + data.decode('utf-8').replace('\n', ''))
             if not data: break
             if data[0] in [70, 73]:  # I, F
                 # get downlink and uplink from gpredict
@@ -265,8 +266,8 @@ def main():
                     downlink = cut[len(cut)-1].replace('\n', '')
                 if data[0] == 73:  # I
                     uplink = cut[len(cut)-1].replace('\n', '')
-                print('last  = ' + last_uplink + ' / ' + last_downlink)
-                print('fresh = ' + uplink + ' / ' + downlink)
+                print('gp2hmlb: last  ^ ' + last_uplink + ' v ' + last_downlink)
+                print('gp2hmlb: fresh ^ ' + uplink + ' v ' + downlink)
                 # only if uplink or downlink changed >0 10Hz Column, then update
                 if (last_uplink[0:8] != uplink[0:8]) or (last_downlink[0:8] != downlink[0:8]):
                     if type_of_satellite in ['SSB', 'CW', 'FM']:
@@ -285,7 +286,7 @@ def main():
                         actual_sub_frequency = sendCommandToHamlib(sock_hamlib, b'f\n').replace('\n', '')
                         downlink = actual_sub_frequency
                         last_downlink = actual_sub_frequency
-                        print('dial down: ' + actual_sub_frequency)
+                        print('gp2hmlb: dial down: ' + actual_sub_frequency)
                         b = bytearray()
                         b.extend(map(ord, actual_sub_frequency + '\n'))
                         conn.send(b)

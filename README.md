@@ -21,31 +21,35 @@ So reports for ic9100 and ic910 are also welcome.
 
 # Usage details
 
-gp2hmlb.py hast to be called with 2 parameter
+gp2hmlb.py has to be called with 2 parameter
 
 Usage: python3 gp2hmlb.py [type_of_satellite] [band_of_uplink]
 
 1. Parameter is type of satellite. You can choose between FM, SSB, SIMPLEX, CW
-2. Parameter is type of uplink. You can choose between 2M, 70CM
+2. Parameter is type of uplink. You can choose between 2M, 70CM, 23CM
 
 
 # Hints
 
 For SIMPLEX and FM satellites i use an update rate of 10000ms in gpredict. This is more then enough.
-You can turn on the AFC function manually on the downlink of ic9700, this can eleminate a lot of the doppler effect.
+This script will turn on AFC function for FM  on the downlink of ic9700, this can eleminate a lot of the doppler effect.
 
 For SSB/CW i use an update rate between 800ms and 2000ms. So cw signals will be ok with 2000ms.
 When you using the main dail to change the frequency 2000ms feels a little bit long. Because you have
-to wait until gepredict have catch the new downlink frequency and the new matching update frequency is
+to wait until gpredict have catch the new downlink frequency and the new matching update frequency is
 send to ic9700. You have to play around with this :)
 
-This script always starts the uplink in LSB and the downlik in USB. Most of the common satellites
-can be worked with this, but when not, we have to enhance the parameter set.
+At start the script always set:
+* the uplink in LSB and the downlink in USB. Most common satellites should work with this (?)
+* the script try to turn of repeater shifts (DUP+, DUP-)
+* it sets SQL to open on uplink and downlink
+* it will set AF level to 0 on TX and to 0.15 on RX
+* starting with CW the uplink is mode CW and the downlink will be USB
 
 
 # Requirements
 
-* gepredict version 2.3.* (older should also possible)
+* gpredict version 2.3.* (older should also possible)
 * hamlib 3.3 (i'm using 4.0 daily snapshot of 9th Nov 2019 http://n0nb.users.sourceforge.net)
 * python 3.7 (python 2.* should not work correct)
 
@@ -58,7 +62,7 @@ can be worked with this, but when not, we have to enhance the parameter set.
 2. starting gp2hmlb.py pythonscript
     * Linux:      python3 gp2hmlb.py FM 70CM
     * Windows:    python3 gp2hmlb.py FM 70CM
-3. start gepredict with a duplex trx on port 4532 and MAIN/SUB
+3. start gpredict with a duplex trx on port 4532 and MAIN/SUB
 
 
 
