@@ -17,6 +17,7 @@ used hamlib commands to play around with the behavior of the ic9700 and hamlib.
 And it should not fix only the problem with ic9700 but also with ic9100 and ic910.
 https://github.com/csete/gpredict/issues/42
 So reports for ic9100 and ic910 are also welcome.
+First users already give feedback for ic910. the script works for them, too.
 
 
 # Usage details
@@ -43,7 +44,7 @@ At start the script always set:
 * the uplink in LSB and the downlink in USB. Most common satellites should work with this (?)
 * the script try to turn of repeater shifts (DUP+, DUP-)
 * it sets SQL to open on uplink and downlink
-* it will set AF level to 0 on TX and to 0.15 on RX
+* it will set AF level to 0 on TX and to 0.09 on RX
 * starting with CW the uplink is mode CW and the downlink will be USB
 
 
@@ -51,7 +52,7 @@ At start the script always set:
 
 * gpredict version 2.3.* (older should also possible)
 * hamlib 3.3 (i'm using 4.0 daily snapshot of 9th Nov 2019 http://n0nb.users.sourceforge.net)
-* python 3.7 (python 2.* should not work correct)
+* python 3.7 (python 2.* will not work)
 
 
 # Starting order

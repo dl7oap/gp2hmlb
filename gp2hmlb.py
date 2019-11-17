@@ -37,126 +37,119 @@ SLEEP_TIME = 0.02   # Sleeping time for hamlib tcp connect. hamlib can not handl
 
 
 def sendCommandToHamlib(sock_hamlib, command):
-    sock_hamlib.send(command)
+    b_cmd = bytearray()
+    b_cmd.extend(map(ord, command + '\n'))
+    sock_hamlib.send(b_cmd)
     time.sleep(SLEEP_TIME)
     return_value = sock_hamlib.recv(100).decode('utf-8')
     if 'RPRT -' in return_value:
-        print('hamlib: ' + return_value.replace('\n', '')
-              + ' for command ' + command.decode('utf-8').replace('\n', ''))
+        print('hamlib: ' + return_value.replace('\n', '') + ' for command ' + command)
     return return_value
 
 
 def setStartSequenceGeneral(sock_hamlib):
 
     # define uplink
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    sendCommandToHamlib(sock_hamlib, b'L SQL 0\n')
-    sendCommandToHamlib(sock_hamlib, b'L AF 0\n')
-    sendCommandToHamlib(sock_hamlib, b'R None\n')
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    sendCommandToHamlib(sock_hamlib, 'L SQL 0')
+    sendCommandToHamlib(sock_hamlib, 'L AF 0')
+    sendCommandToHamlib(sock_hamlib, 'R None')
 
     # define downlink
-    sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-    sendCommandToHamlib(sock_hamlib, b'L SQL 0\n')
-    sendCommandToHamlib(sock_hamlib, b'L AF 0.15\n')
-    sendCommandToHamlib(sock_hamlib, b'R None\n')
+    sendCommandToHamlib(sock_hamlib, 'V Sub')
+    sendCommandToHamlib(sock_hamlib, 'L SQL 0')
+    sendCommandToHamlib(sock_hamlib, 'L AF 0.09')
+    sendCommandToHamlib(sock_hamlib, 'R None')
 
 
 def setStartSequenceSSB(sock_hamlib):
 
     # define uplink
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M LSB 2400\n')
-    sendCommandToHamlib(sock_hamlib, b'S 0 Main\n')
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M LSB 2400')
+    sendCommandToHamlib(sock_hamlib, 'S 0 Main')
 
     # define downlink
-    sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M USB 2400\n')
+    sendCommandToHamlib(sock_hamlib, 'V Sub')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M USB 2400')
 
 
 def setStartSequenceCW(sock_hamlib):
 
     # define uplink
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M CW 500\n')
-    sendCommandToHamlib(sock_hamlib, b'S 0 Main\n')
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M CW 500')
+    sendCommandToHamlib(sock_hamlib, 'S 0 Main')
 
     # define downlink
-    sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M USB 2400\n')
+    sendCommandToHamlib(sock_hamlib, 'V Sub')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M USB 2400')
 
 
 def setStartSequenceFM(sock_hamlib):
 
     # define uplink
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M FM 15000\n')
-    sendCommandToHamlib(sock_hamlib, b'S 0 Main\n')
-    sendCommandToHamlib(sock_hamlib, b'U AFC 0\n')
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M FM 15000')
+    sendCommandToHamlib(sock_hamlib, 'S 0 Main')
+    sendCommandToHamlib(sock_hamlib, 'U AFC 0')
 
-    sendCommandToHamlib(sock_hamlib, b'C 670\n')
-    sendCommandToHamlib(sock_hamlib, b'U TONE 1\n')
+    sendCommandToHamlib(sock_hamlib, 'C 670')
+    sendCommandToHamlib(sock_hamlib, 'U TONE 1')
 
     # define downlink
-    sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M FM 15000\n')
-    sendCommandToHamlib(sock_hamlib, b'U TONE 0\n')
-    sendCommandToHamlib(sock_hamlib, b'U AFC 1\n')
+    sendCommandToHamlib(sock_hamlib, 'V Sub')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M FM 15000')
+    sendCommandToHamlib(sock_hamlib, 'U TONE 0')
+    sendCommandToHamlib(sock_hamlib, 'U AFC 1')
 
 
 def setStartSequenceSimplex(sock_hamlib):
 
     # define uplink
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    sendCommandToHamlib(sock_hamlib, b'V VFOB\n')
-    sendCommandToHamlib(sock_hamlib, b'M FM 15000\n')
-    sendCommandToHamlib(sock_hamlib, b'S 0 Main\n')
-    sendCommandToHamlib(sock_hamlib, b'U AFC 0\n')
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    sendCommandToHamlib(sock_hamlib, 'V VFOB')
+    sendCommandToHamlib(sock_hamlib, 'M FM 15000')
+    sendCommandToHamlib(sock_hamlib, 'S 0 Main')
+    sendCommandToHamlib(sock_hamlib, 'U AFC 0')
 
     # define downlink
-    sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-    sendCommandToHamlib(sock_hamlib, b'M FM 15000\n')
-    sendCommandToHamlib(sock_hamlib, b'U TONE 0\n')
-    sendCommandToHamlib(sock_hamlib, b'S 1 Main\n')
-    sendCommandToHamlib(sock_hamlib, b'U AFC 1\n')
+    sendCommandToHamlib(sock_hamlib, 'V VFOA')
+    sendCommandToHamlib(sock_hamlib, 'M FM 15000')
+    sendCommandToHamlib(sock_hamlib, 'U TONE 0')
+    sendCommandToHamlib(sock_hamlib, 'S 1 Main')
+    sendCommandToHamlib(sock_hamlib, 'U AFC 1')
 
 
 def loopSSBandFMandCW(sock_hamlib, up, dw):
 
     # set uplink frequency
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    b = bytearray()
-    b.extend(map(ord, 'F ' + up + '\n'))
-    sendCommandToHamlib(sock_hamlib, b)
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    sendCommandToHamlib(sock_hamlib, 'F ' + up)
 
     # set downlink frequency
-    sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-    b = bytearray()
-    b.extend(map(ord, 'F ' + dw + '\n'))
-    sendCommandToHamlib(sock_hamlib, b)
+    sendCommandToHamlib(sock_hamlib, 'V Sub')
+    sendCommandToHamlib(sock_hamlib, 'F ' + dw)
 
 
 def loopSIMPLEX(sock_hamlib, up, dw):
 
     # only update of frequencies if PTT off
-    if sendCommandToHamlib(sock_hamlib, b't\n')[0] == '0':
+    if sendCommandToHamlib(sock_hamlib, 't')[0] == '0':
 
         # set uplink frequency
-        sendCommandToHamlib(sock_hamlib, b'V VFOB\n')
-        b = bytearray()
-        b.extend(map(ord, 'F ' + up + '\n'))
-        sendCommandToHamlib(sock_hamlib, b)
+        sendCommandToHamlib(sock_hamlib, 'V VFOB')
+        sendCommandToHamlib(sock_hamlib, 'F ' + up )
 
         # set downlink frequency
-        sendCommandToHamlib(sock_hamlib, b'V VFOA\n')
-        b = bytearray()
-        b.extend(map(ord, 'F ' + dw + '\n'))
-        sendCommandToHamlib(sock_hamlib, b)
+        sendCommandToHamlib(sock_hamlib, 'V VFOA')
+        sendCommandToHamlib(sock_hamlib, 'F ' + dw)
 
 
 def getBandFromFrequency(frequency):
@@ -169,23 +162,23 @@ def getBandFromFrequency(frequency):
 
 
 def activateCorrectUplinkBandInMain(sock_hamlib, type_of_uplink_band):
-    sendCommandToHamlib(sock_hamlib, b'V Main\n')
-    main_frequency = sendCommandToHamlib(sock_hamlib, b'f\n')
-    sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-    sub_frequency = sendCommandToHamlib(sock_hamlib, b'f\n')
+    sendCommandToHamlib(sock_hamlib, 'V Main')
+    main_frequency = sendCommandToHamlib(sock_hamlib, 'f')
+    sendCommandToHamlib(sock_hamlib, 'V Sub')
+    sub_frequency = sendCommandToHamlib(sock_hamlib, 'f')
 
     if type_of_uplink_band == getBandFromFrequency(main_frequency):  # is uplink band in main -> nothing to do
         return
     elif type_of_uplink_band == getBandFromFrequency(sub_frequency):  # is uplink band in sub -> switch bands
-        sendCommandToHamlib(sock_hamlib, b'G XCHG\n')
+        sendCommandToHamlib(sock_hamlib, 'G XCHG')
     else:  # is uplink band not in main and sub -> set band in main
-        sendCommandToHamlib(sock_hamlib, b'V Main\n')
+        sendCommandToHamlib(sock_hamlib, 'V Main')
         if type_of_uplink_band == '23CM':
-            sendCommandToHamlib(sock_hamlib, b'F 1295000000\n')
+            sendCommandToHamlib(sock_hamlib, 'F 1295000000')
         if type_of_uplink_band == '70CM':
-            sendCommandToHamlib(sock_hamlib, b'F 435000000\n')
+            sendCommandToHamlib(sock_hamlib, 'F 435000000')
         if type_of_uplink_band == '2M':
-            sendCommandToHamlib(sock_hamlib, b'F 145900000\n')
+            sendCommandToHamlib(sock_hamlib, 'F 145900000')
 
 
 def main():
@@ -283,7 +276,7 @@ def main():
                     conn.send(b'RPRT')
                 else:
                     if data[0] == 102:  # f downlink
-                        actual_sub_frequency = sendCommandToHamlib(sock_hamlib, b'f\n').replace('\n', '')
+                        actual_sub_frequency = sendCommandToHamlib(sock_hamlib, 'f').replace('\n', '')
                         downlink = actual_sub_frequency
                         last_downlink = actual_sub_frequency
                         print('gp2hmlb: dial down: ' + actual_sub_frequency)
