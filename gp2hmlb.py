@@ -2,7 +2,7 @@
 
 '''
 Author  : Andreas Puschendorf, DL7OAP
-Version : 005
+Version : 006
 Date    : 2019-11-24
 
 This script is plugged between gpredict and hamlib based on python 3.7
@@ -104,6 +104,8 @@ def setStartSequenceFM(sock_hamlib):
     sendCommandToHamlib(sock_hamlib, 'M FM 15000')
     sendCommandToHamlib(sock_hamlib, 'S 0 Main')
     sendCommandToHamlib(sock_hamlib, 'U AFC 0')
+    sendCommandToHamlib(sock_hamlib, 'J 0')
+    sendCommandToHamlib(sock_hamlib, 'U RIT 0')
 
     sendCommandToHamlib(sock_hamlib, 'C 670')
     sendCommandToHamlib(sock_hamlib, 'U TONE 1')
@@ -114,6 +116,8 @@ def setStartSequenceFM(sock_hamlib):
     sendCommandToHamlib(sock_hamlib, 'M FM 15000')
     sendCommandToHamlib(sock_hamlib, 'U TONE 0')
     sendCommandToHamlib(sock_hamlib, 'U AFC 1')
+    sendCommandToHamlib(sock_hamlib, 'J 0')
+    sendCommandToHamlib(sock_hamlib, 'U RIT 0')
 
 
 def setStartSequenceSimplex(sock_hamlib):
@@ -124,6 +128,8 @@ def setStartSequenceSimplex(sock_hamlib):
     sendCommandToHamlib(sock_hamlib, 'M FM 15000')
     sendCommandToHamlib(sock_hamlib, 'S 0 Main')
     sendCommandToHamlib(sock_hamlib, 'U AFC 0')
+    sendCommandToHamlib(sock_hamlib, 'J 0')
+    sendCommandToHamlib(sock_hamlib, 'U RIT 0')
 
     # define downlink
     sendCommandToHamlib(sock_hamlib, 'V VFOA')
@@ -131,6 +137,8 @@ def setStartSequenceSimplex(sock_hamlib):
     sendCommandToHamlib(sock_hamlib, 'U TONE 0')
     sendCommandToHamlib(sock_hamlib, 'S 1 Main')
     sendCommandToHamlib(sock_hamlib, 'U AFC 1')
+    sendCommandToHamlib(sock_hamlib, 'J 0')
+    sendCommandToHamlib(sock_hamlib, 'U RIT 0')
 
 
 def loopSSBandFMandCW(sock_hamlib, up, dw):
