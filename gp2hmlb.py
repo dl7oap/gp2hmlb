@@ -2,12 +2,12 @@
 
 '''
 Author  : Andreas Puschendorf, DL7OAP
-Version : 004
-Date    : 2019-11-16
+Version : 005
+Date    : 2019-11-24
 
 This script is plugged between gpredict and hamlib based on python 3.7
 It is listing on port 4532 for gpredict frequencies
-and it is sending frequencies and startsequences for ic9700 to port 4572 for hamlib
+and it is sending frequencies and startsequences for ic9700, ic9100 and ic910 to port 4572 for hamlib
 
 Usage: python3 gp2hmlb.py [type_of_satellite] [band_of_uplink]
 gp2hmlb.py hast to be called with 2 parameter
@@ -25,21 +25,24 @@ second parameter is type of uplink. You can choose between 2M, 70CM, 23CM
 
 
 import socket
-import time
 import sys
 
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT_SERVER = 4532  # Port to listen on (non-privileged ports are > 1023)
 PORT_CLIENT = 4572  # Port to listen on (non-privileged ports are > 1023)
-SLEEP_TIME = 0.02   # Sleeping time for hamlib tcp connect. hamlib can not handle to much commands.
 
 
 def sendCommandToHamlib(sock_hamlib, command):
     b_cmd = bytearray()
     b_cmd.extend(map(ord, command + '\n'))
     sock_hamlib.send(b_cmd)
-    time.sleep(SLEEP_TIME)
-    return_value = sock_hamlib.recv(100).decode('utf-8')
+    waiting_for_answer = True
+    return_value = ''
+    while waiting_for_answer:
+        return_value = sock_hamlib.recv(100).decode('utf-8')
+        if len(return_value) > 0:
+            waiting_for_answer = False
+
     if 'RPRT -' in return_value:
         print('hamlib: ' + return_value.replace('\n', '') + ' for command ' + command)
     return return_value
@@ -260,19 +263,18 @@ def main():
             if data[0] in [70, 73]:  # I, F
                 # get downlink and uplink from gpredict
                 cut = data.decode('utf-8').split(' ')
-                if data[0] == 70:  # F
+                if data[0] == 70:  # F - gpredict ask for downlink
                     downlink = cut[len(cut)-1].replace('\n', '')
-                if data[0] == 73:  # I
+                if data[0] == 73:  # I - gpredict ask for uplink
                     uplink = cut[len(cut)-1].replace('\n', '')
                 print('gp2hmlb: last  ^ ' + last_uplink + ' v ' + last_downlink)
                 print('gp2hmlb: fresh ^ ' + uplink + ' v ' + downlink)
-                # only if uplink or downlink changed >0 10Hz Column, then update
+                # only if uplink or downlink changed > 0 10Hz Column, then update
                 if (last_uplink[0:8] != uplink[0:8]) or (last_downlink[0:8] != downlink[0:8]):
                     if type_of_satellite in ['SSB', 'USB', 'CW', 'FM']:
                         loopSSBandFMandCW(sock_hamlib, uplink, downlink)
                     if type_of_satellite == 'SIMPLEX':
                         loopSIMPLEX(sock_hamlib, uplink, downlink)
-
                     last_uplink = uplink
                     last_downlink = downlink
                 conn.send(b'RPRT 0')  # Return Data OK to gpredict
@@ -280,7 +282,7 @@ def main():
                 if type_of_satellite in ['SIMPLEX']:
                     conn.send(b'RPRT')
                 else:
-                    if data[0] == 102:  # f downlink
+                    if data[0] == 102:  # f - gpredict ask for downlink
                         actual_sub_frequency = sendCommandToHamlib(sock_hamlib, 'f').replace('\n', '')
                         downlink = actual_sub_frequency
                         last_downlink = actual_sub_frequency
@@ -288,16 +290,12 @@ def main():
                         b = bytearray()
                         b.extend(map(ord, actual_sub_frequency + '\n'))
                         conn.send(b)
-                    elif data[0] == 105:  # i uplink
-                        # sendCommandToHamlib(sock_hamlib, b'V Main\n')
-                        # actual_main_frequency = sendCommandToHamlib(sock_hamlib, b'f\n').replace('\n', '')
-                        # #last_uplink = actual_main_frequency
-                        # sendCommandToHamlib(sock_hamlib, b'V Sub\n')
-                        # print('dial up: ' + actual_main_frequency)
-                        # b = bytearray()
-                        # b.extend(map(ord, actual_main_frequency + '\n'))
-                        # conn.send(b)
-                        conn.send(b'RPRT')
+                    elif data[0] == 105:  # i - gpredict ask for uplink
+                        # we do not look for dial on uplink,
+                        # we just ignore it and send back the last uplink frequency
+                        b = bytearray()
+                        b.extend(map(ord, uplink + '\n'))
+                        conn.send(b)
             elif data[0] == 116:  # t ptt
                 conn.send(b'0')
             else:
@@ -307,4 +305,3 @@ def main():
 
 
 main()
-
