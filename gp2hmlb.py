@@ -295,12 +295,13 @@ def main():
                 else:
                     if data[0] == 102:  # f - gpredict ask for downlink
                         actual_sub_frequency = sendCommandToHamlib(sock_hamlib, 'f').replace('\n', '')
-                        downlink = actual_sub_frequency
-                        last_downlink = actual_sub_frequency
-                        print('gp2hmlb: dial down: ' + actual_sub_frequency)
-                        b = bytearray()
-                        b.extend(map(ord, actual_sub_frequency + '\n'))
-                        conn.send(b)
+                        if actual_sub_frequency.find('RPRT') == -1:
+                            downlink = actual_sub_frequency
+                            last_downlink = actual_sub_frequency
+                            print('gp2hmlb: dial down: ' + actual_sub_frequency)
+                            b = bytearray()
+                            b.extend(map(ord, actual_sub_frequency + '\n'))
+                            conn.send(b)
                     elif data[0] == 105:  # i - gpredict ask for uplink
                         # we do not look for dial on uplink,
                         # we just ignore it and send back the last uplink frequency
