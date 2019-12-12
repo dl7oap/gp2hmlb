@@ -2,8 +2,8 @@
 
 '''
 Author  : Andreas Puschendorf, DL7OAP
-Version : 006
-Date    : 2019-11-24
+Version : 007
+Date    : 2019-12-12
 
 This script is plugged between gpredict and hamlib based on python 3.7
 It is listing on port 4532 for gpredict frequencies
@@ -30,6 +30,7 @@ import sys
 HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
 PORT_SERVER = 4532  # Port to listen on (non-privileged ports are > 1023)
 PORT_CLIENT = 4572  # Port to listen on (non-privileged ports are > 1023)
+FREQUENCY_OFFSET = 25  # needed Frequency shift in Hz before a correction is send to transceiver
 
 
 def sendCommandToHamlib(sock_hamlib, command):
@@ -245,7 +246,8 @@ def main():
         elif type_of_satellite == 'SIMPLEX':
             setStartSequenceSimplex(sock_hamlib)
         else:
-            print('ERROR: unkown satellite type "' + type_of_satellite + '". Only SSB, USB, FM, SIMPLEX or CW possible.')
+            print('ERROR: unkown satellite type "' + type_of_satellite
+                  + '". Only SSB, USB, FM, SIMPLEX or CW possible.')
             return
         setStartSequenceGeneral(sock_hamlib, type_of_satellite)
 
@@ -278,7 +280,8 @@ def main():
                 print('gp2hmlb: last  ^ ' + last_uplink + ' v ' + last_downlink)
                 print('gp2hmlb: fresh ^ ' + uplink + ' v ' + downlink)
                 # only if uplink or downlink changed > 0 10Hz Column, then update
-                if (last_uplink[0:8] != uplink[0:8]) or (last_downlink[0:8] != downlink[0:8]):
+                if (abs(int(last_uplink)-int(uplink)) > FREQUENCY_OFFSET) \
+                        or (abs(int(last_downlink)-int(downlink)) > FREQUENCY_OFFSET):
                     if type_of_satellite in ['SSB', 'USB', 'CW', 'FM']:
                         loopSSBandFMandCW(sock_hamlib, uplink, downlink)
                     if type_of_satellite == 'SIMPLEX':
